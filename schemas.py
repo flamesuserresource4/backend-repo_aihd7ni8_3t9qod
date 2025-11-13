@@ -12,15 +12,36 @@ Model name is converted to lowercase for the collection name:
 """
 
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import Optional, List
 
-# Example schemas (replace with your own):
+# Core app schemas
 
+class Restaurant(BaseModel):
+    """
+    Restaurants collection schema
+    Collection name: "restaurant"
+    """
+    name: str = Field(..., description="Restaurant name")
+    cuisine: Optional[str] = Field(None, description="Cuisine type")
+    description: Optional[str] = Field(None, description="Short description")
+    image_url: Optional[str] = Field(None, description="Cover image URL")
+    latitude: float = Field(..., ge=-90, le=90, description="Latitude")
+    longitude: float = Field(..., ge=-180, le=180, description="Longitude")
+    is_open: bool = Field(True, description="Open status")
+
+class Post(BaseModel):
+    """
+    Social posts related to food/restaurants
+    Collection name: "post"
+    """
+    restaurant_id: Optional[str] = Field(None, description="Related restaurant ObjectId as string")
+    author: str = Field(..., description="Author display name")
+    content: str = Field(..., description="Post text content")
+    images: Optional[List[str]] = Field(default=None, description="Image URLs")
+    rating: Optional[int] = Field(default=None, ge=1, le=5, description="Optional rating 1-5")
+
+# Example schemas (kept for reference)
 class User(BaseModel):
-    """
-    Users collection schema
-    Collection name: "user" (lowercase of class name)
-    """
     name: str = Field(..., description="Full name")
     email: str = Field(..., description="Email address")
     address: str = Field(..., description="Address")
@@ -28,21 +49,8 @@ class User(BaseModel):
     is_active: bool = Field(True, description="Whether user is active")
 
 class Product(BaseModel):
-    """
-    Products collection schema
-    Collection name: "product" (lowercase of class name)
-    """
     title: str = Field(..., description="Product title")
     description: Optional[str] = Field(None, description="Product description")
     price: float = Field(..., ge=0, description="Price in dollars")
     category: str = Field(..., description="Product category")
     in_stock: bool = Field(True, description="Whether product is in stock")
-
-# Add your own schemas here:
-# --------------------------------------------------
-
-# Note: The Flames database viewer will automatically:
-# 1. Read these schemas from GET /schema endpoint
-# 2. Use them for document validation when creating/editing
-# 3. Handle all database operations (CRUD) directly
-# 4. You don't need to create any database endpoints!
